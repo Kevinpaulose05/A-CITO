@@ -20,3 +20,4 @@ CMakeFiles/
 .vscode/
 *.user
 
+.catkin_tools/
