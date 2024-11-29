@@ -13,6 +13,7 @@ logs/
 # Ignore CMake-generated files
 CMakeCache.txt
 CMakeFiles/
+.catkin_tools
 
 # Ignore any user-specific files
 .idea/
