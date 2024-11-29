@@ -1,0 +1,21 @@
+# Ignore build, devel, and logs directories
+build/
+devel/
+logs/
+
+# Ignore hidden files created by build tools
+*.swp
+*.bak
+*.pyc
+*.pyo
+.DS_Store
+
+# Ignore CMake-generated files
+CMakeCache.txt
+CMakeFiles/
+
+# Ignore any user-specific files
+.idea/
+.vscode/
+*.user
+

@@ -1,0 +1,9 @@
+cito
+/home/kevin/cito_ws/devel/.private/cito/cmake.lock /home/kevin/cito_ws/devel/./cmake.lock
+/home/kevin/cito_ws/devel/.private/cito/share/cito/cmake/citoConfig.cmake /home/kevin/cito_ws/devel/share/cito/cmake/citoConfig.cmake
+/home/kevin/cito_ws/devel/.private/cito/share/cito/cmake/citoConfig-version.cmake /home/kevin/cito_ws/devel/share/cito/cmake/citoConfig-version.cmake
+/home/kevin/cito_ws/devel/.private/cito/lib/libcito.so /home/kevin/cito_ws/devel/lib/libcito.so
+/home/kevin/cito_ws/devel/.private/cito/lib/cito/main /home/kevin/cito_ws/devel/lib/cito/main
+/home/kevin/cito_ws/devel/.private/cito/lib/cito/playlog /home/kevin/cito_ws/devel/lib/cito/playlog
+/home/kevin/cito_ws/devel/.private/cito/lib/cito/fcl_funcs /home/kevin/cito_ws/devel/lib/cito/fcl_funcs
+/home/kevin/cito_ws/devel/.private/cito/lib/pkgconfig/cito.pc /home/kevin/cito_ws/devel/lib/pkgconfig/cito.pc
