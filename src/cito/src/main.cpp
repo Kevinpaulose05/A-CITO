@@ -1,6 +1,5 @@
-
-
 #include "cito/penalty_loop.h"
+#include <fstream>
 
 int main(int argc, char const *argv[])
 {
@@ -52,34 +51,32 @@ int main(int argc, char const *argv[])
     trajectory traj_with_forces = scvx.runSimulation(U, false, 2, 1, true, external_force_start_step, external_force_end_step, joint_index, external_force_value);
     trajectory traj_with_admittance = scvx.runSimulationWithAdmittance(U, adm_mass, adm_damping, adm_stiffness, external_force_start_step, external_force_end_step, joint_index, external_force_value);
 
-    auto computeAndDisplayMetrics = [](const trajectory &nominal, const trajectory &test, const std::string &label, int N, int nv) {
-        double total_pos_deviation = 0.0, total_vel_deviation = 0.0, max_pos_deviation = 0.0, max_vel_deviation = 0.0;
-        for (int i = 0; i <= N; i++)
-        {
-            eigVd pos_deviation = test.X.col(i).head(nv) - nominal.X.col(i).head(nv);
-            eigVd vel_deviation = test.X.col(i).tail(nv) - nominal.X.col(i).tail(nv);
+    // Open log file for writing
+    std::ofstream logFile("trajectory_log.csv");
+    logFile << "Time,Position_Nominal,Velocity_Nominal,Position_Without_Admittance,Velocity_Without_Admittance,Position_With_Admittance,Velocity_With_Admittance\n";
 
-            total_pos_deviation += pos_deviation.squaredNorm();
-            total_vel_deviation += vel_deviation.squaredNorm();
-            max_pos_deviation = std::max(max_pos_deviation, pos_deviation.norm());
-            max_vel_deviation = std::max(max_vel_deviation, vel_deviation.norm());
-        }
+    for (int i = 0; i <= cp.N; i++)
+    {
+        eigVd pos_nominal = traj.X.col(i).head(m->nv);
+        eigVd vel_nominal = traj.X.col(i).tail(m->nv);
 
-        std::cout << "\nMetrics (" << label << "):\n";
-        std::cout << "- RMSE in position: " << std::sqrt(total_pos_deviation / (N + 1)) << "\n";
-        std::cout << "- RMSE in velocity: " << std::sqrt(total_vel_deviation / (N + 1)) << "\n";
-        std::cout << "- Max position deviation: " << max_pos_deviation << "\n";
-        std::cout << "- Max velocity deviation: " << max_vel_deviation << "\n";
-    };
+        eigVd pos_without_admittance = traj_with_forces.X.col(i).head(m->nv);
+        eigVd vel_without_admittance = traj_with_forces.X.col(i).tail(m->nv);
 
-    std::cout << "\n### Trajectory Metrics ###\n";
-    computeAndDisplayMetrics(traj, traj_with_forces, "No Admittance", cp.N, m->nv);
-    computeAndDisplayMetrics(traj, traj_with_admittance, "With Admittance", cp.N, m->nv);
+        eigVd pos_with_admittance = traj_with_admittance.X.col(i).head(m->nv);
+        eigVd vel_with_admittance = traj_with_admittance.X.col(i).tail(m->nv);
+
+        // Write data to CSV
+        logFile << i << ",";
+        logFile << pos_nominal.transpose() << "," << vel_nominal.transpose() << ",";
+        logFile << pos_without_admittance.transpose() << "," << vel_without_admittance.transpose() << ",";
+        logFile << pos_with_admittance.transpose() << "," << vel_with_admittance.transpose() << "\n";
+    }
+
+    logFile.close();
 
     mj_deleteModel(m);
     mj_deactivate();
 
     return 0;
 }
-
-
