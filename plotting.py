@@ -6,7 +6,7 @@ import numpy as np
 data = pd.read_csv("trajectory_log.csv")
 
 # Extract columns and convert to numpy arrays
-time = data['Time'].to_numpy()
+time = data['Time'].to_numpy()  # Time in seconds
 pos_nominal = data['Position_Nominal'].to_numpy()
 vel_nominal = data['Velocity_Nominal'].to_numpy()
 pos_without_admittance = data['Position_Without_Admittance'].to_numpy()
@@ -20,6 +20,9 @@ pos_variable_force = data['Position_VariableForce'].to_numpy()
 vel_variable_force = data['Velocity_VariableForce'].to_numpy()
 control_variable_force = data['Control_VariableForce'].to_numpy()
 variable_force = data['Variable_Force'].to_numpy()
+
+# Define fixed force
+fixed_force = np.full_like(variable_force, 10.0)  # Fixed force of 10.0 N
 
 # Convert string data to numerical arrays
 def process_series(series):
@@ -59,16 +62,10 @@ deviation_without_admittance = np.linalg.norm(pos_without_admittance - pos_nomin
 deviation_with_admittance = np.linalg.norm(pos_with_admittance - pos_nominal, axis=1)
 deviation_variable_force = np.linalg.norm(pos_variable_force - pos_nominal, axis=1)
 
-# Compute cumulative control effort
-cumulative_control_without_admittance = np.cumsum(norm_control_without_admittance)
-cumulative_control_with_admittance = np.cumsum(norm_control_with_admittance)
-cumulative_control_variable_force = np.cumsum(norm_control_variable_force)
-
 # Stability Metric
 stability_without_admittance = deviation_without_admittance / norm_pos_nominal
 stability_with_admittance = deviation_with_admittance / norm_pos_nominal
 stability_variable_force = deviation_variable_force / norm_pos_nominal
-
 
 # Plot position deviations
 plt.figure(figsize=(12, 6))
@@ -77,8 +74,8 @@ plt.plot(time, norm_pos_without_admittance, label="With Uniform Force Pattern (A
 plt.plot(time, norm_pos_with_admittance, label="With Uniform Force Pattern (Admittance ON)")
 plt.plot(time, norm_pos_variable_force, label="With Variable Force Pattern (Admittance ON)", linestyle="--", alpha=0.8)
 plt.title("Position Deviation Over Time")
-plt.xlabel("Time (Steps)")
-plt.ylabel("Position Norm")
+plt.xlabel("Time (s)")  # Seconds
+plt.ylabel("Position Norm (m)")  # Meters
 plt.legend()
 plt.grid()
 plt.show()
@@ -90,8 +87,8 @@ plt.plot(time, norm_vel_without_admittance, label="With Uniform Force Pattern (A
 plt.plot(time, norm_vel_with_admittance, label="With Uniform Force Pattern (Admittance ON)")
 plt.plot(time, norm_vel_variable_force, label="With Variable Force Pattern (Admittance ON)", linestyle="--", alpha=0.8)
 plt.title("Velocity Deviation Over Time")
-plt.xlabel("Time (Steps)")
-plt.ylabel("Velocity Norm")
+plt.xlabel("Time (s)")  # Seconds
+plt.ylabel("Velocity Norm (m/s)")  # Meters per second
 plt.legend()
 plt.grid()
 plt.show()
@@ -102,8 +99,8 @@ plt.plot(time, deviation_without_admittance, label="Deviation With Uniform Force
 plt.plot(time, deviation_with_admittance, label="Deviation With Uniform Force Pattern (Admittance ON)")
 plt.plot(time, deviation_variable_force, label="Deviation With Variable Force Pattern (Admittance ON)", linestyle="--")
 plt.title("Trajectory Deviation from Nominal Over Time")
-plt.xlabel("Time (Steps)")
-plt.ylabel("Trajectory Deviation Norm")
+plt.xlabel("Time (s)")  # Seconds
+plt.ylabel("Trajectory Deviation Norm (m)")  # Meters
 plt.legend()
 plt.grid()
 plt.show()
@@ -114,30 +111,19 @@ plt.plot(time, stability_without_admittance, label="Stability With Uniform Force
 plt.plot(time, stability_with_admittance, label="Stability With Uniform Force Pattern (Admittance ON)", linestyle=":")
 plt.plot(time, stability_variable_force, label="Stability With Variable Force Pattern (Admittance ON)", linestyle="-")
 plt.title("System Stability Over Time")
-plt.xlabel("Time (Steps)")
-plt.ylabel("Deviation Ratio")
+plt.xlabel("Time (s)")  # Seconds
+plt.ylabel("Deviation Ratio (unitless)")  # Unitless
 plt.legend()
 plt.grid()
 plt.show()
 
-# Plot cumulative control effort
+# Plot input forces over time
 plt.figure(figsize=(12, 6))
-plt.plot(time, cumulative_control_without_admittance, label="Control With Uniform Force Pattern (Admittance OFF)")
-plt.plot(time, cumulative_control_with_admittance, label="Control With Uniform Force Pattern (Admittance ON)")
-plt.plot(time, cumulative_control_variable_force, label="Control With Variable Force Pattern (Admittance ON)", linestyle="--")
-plt.title("Cumulative Control Effort Over Time")
-plt.xlabel("Time (Steps)")
-plt.ylabel("Cumulative Control Effort")
-plt.legend()
-plt.grid()
-plt.show()
-
-# Plot force over time
-plt.figure(figsize=(12, 6))
-plt.plot(time, variable_force, label="Variable Force", color="purple")
-plt.title("Variable Force Over Time")
-plt.xlabel("Time (Steps)")
-plt.ylabel("Force Magnitude")
+plt.plot(time, fixed_force, label="Fixed Force (10.0 N)", color="blue")
+plt.plot(time, variable_force, label="Variable Force (N)", color="purple")
+plt.title("Input Force Patterns Over Time")
+plt.xlabel("Time (s)")  # Seconds
+plt.ylabel("Force Magnitude (N)")  # Newtons
 plt.legend()
 plt.grid()
 plt.show()
