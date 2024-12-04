@@ -200,6 +200,48 @@ trajectory SCVX::runSimulationWithAdmittance(
     return traj;
 }
 
+trajectory SCVX::runVariableForceSimulation(
+    const eigMd &U,
+    std::function<double(int)> forceProfile,
+    int joint_index)
+{
+    // Create mjData
+    mjData *d = mj_makeData(m);
+
+    // Initialize data
+    mju_copy(d->qpos, m->key_qpos, m->nq);
+    mju_copy(d->qvel, m->key_qvel, m->nv);
+    mj_forward(m, d);
+
+    // Rollout the dynamics with variable forces
+    for (int i = 0; i < cp->N; i++) {
+        mj_forward(m, d);
+
+        // Apply variable force
+        double variable_force = forceProfile(i);
+        d->qfrc_applied[joint_index] = variable_force;
+
+        // Record the state
+        XSucc.col(i) = cp->getState(d);
+
+        // Take one simulation step
+        cc->takeStep(d, U.col(i), 1, true);
+    }
+
+    // Record the final state
+    XSucc.col(cp->N) = cp->getState(d);
+
+    // Clean up
+    mj_deleteData(d);
+
+    // Build trajectory
+    traj.X = XSucc;
+    traj.U = U;
+
+    return traj;
+}
+
+
 
 // solveSCVX: executes the successive convexification algorithm
 eigMd SCVX::solveSCVX(const eigMd &U0)

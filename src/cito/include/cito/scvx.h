@@ -49,6 +49,14 @@ public:
         double adm_damping,
         double adm_stiffness);
 
+    
+    /// This function simulates dynamics with a variable force profile
+    trajectory runVariableForceSimulation(
+        const eigMd &U,
+        std::function<double(int)> forceProfile,
+        int joint_index);
+
+
     eigMd solveSCVX(const eigMd &U);
 
     /// This function refreshes SCVX variables for a new run
