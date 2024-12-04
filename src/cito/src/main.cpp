@@ -53,7 +53,9 @@ int main(int argc, char const *argv[])
 
     // Open log file for writing
     std::ofstream logFile("trajectory_log.csv");
-    logFile << "Time,Position_Nominal,Velocity_Nominal,Position_Without_Admittance,Velocity_Without_Admittance,Position_With_Admittance,Velocity_With_Admittance\n";
+    logFile << "Time,Position_Nominal,Velocity_Nominal,Position_Without_Admittance,Velocity_Without_Admittance,"
+               "Position_With_Admittance,Velocity_With_Admittance,Control_Without_Admittance,Control_With_Admittance,"
+               "Forces_Applied\n";
 
     for (int i = 0; i <= cp.N; i++)
     {
@@ -66,12 +68,24 @@ int main(int argc, char const *argv[])
         eigVd pos_with_admittance = traj_with_admittance.X.col(i).head(m->nv);
         eigVd vel_with_admittance = traj_with_admittance.X.col(i).tail(m->nv);
 
+        eigVd control_without_admittance = (i < cp.N) ? traj_with_forces.U.col(i) : Eigen::VectorXd::Zero(cp.m).eval();
+        eigVd control_with_admittance = (i < cp.N) ? traj_with_admittance.U.col(i) : Eigen::VectorXd::Zero(cp.m).eval();
+
+        eigVd forces_applied = Eigen::VectorXd::Zero(m->nv);
+        if (i >= external_force_start_step && i <= external_force_end_step)
+        {
+            forces_applied[joint_index] = external_force_value;
+        }
+
         // Write data to CSV
         logFile << i << ",";
         logFile << pos_nominal.transpose() << "," << vel_nominal.transpose() << ",";
         logFile << pos_without_admittance.transpose() << "," << vel_without_admittance.transpose() << ",";
-        logFile << pos_with_admittance.transpose() << "," << vel_with_admittance.transpose() << "\n";
+        logFile << pos_with_admittance.transpose() << "," << vel_with_admittance.transpose() << ",";
+        logFile << control_without_admittance.transpose() << "," << control_with_admittance.transpose() << ",";
+        logFile << forces_applied.transpose() << "\n";
     }
+
 
     logFile.close();
 
